@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatPrice } from "@/lib/data";
+import { formatPrice } from "@/lib/utils";
 
 interface MortgageCalculatorProps {
   propertyPrice: number;

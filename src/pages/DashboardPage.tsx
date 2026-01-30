@@ -57,7 +57,7 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import PropertyCard from "@/components/PropertyCard";
-import { properties } from "@/lib/data"; // Import local properties for fallback/mapping
+import { useProperties } from "@/hooks/useProperties";
 
 // Schema for property requirements
 const requirementSchema = z.object({
@@ -74,6 +74,7 @@ export default function DashboardPage() {
     const { user, loading: authLoading, signOut } = useRequireAuth();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const { properties } = useProperties();
 
     // Requirements Form
     const form = useForm<z.infer<typeof requirementSchema>>({

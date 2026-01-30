@@ -1,8 +1,9 @@
 import { Star, Quote } from "lucide-react";
-import { testimonials } from "@/lib/data";
+import { useTestimonials } from "@/hooks/useTestimonials";
 import { cn } from "@/lib/utils";
 
 export default function TestimonialsSection() {
+  const { testimonials } = useTestimonials();
   return (
     <section className="py-20 bg-muted/50">
       <div className="container">
@@ -23,7 +24,7 @@ export default function TestimonialsSection() {
               style={{ animationDelay: `${idx * 100}ms` }}
             >
               <Quote className="h-8 w-8 text-primary/30 mb-4" />
-              
+
               <p className="text-foreground mb-6 leading-relaxed">
                 "{testimonial.quote}"
               </p>

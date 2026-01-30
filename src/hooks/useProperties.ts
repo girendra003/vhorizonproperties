@@ -1,8 +1,6 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Property } from "@/lib/types";
-import { properties as staticProperties } from "@/lib/data";
 
 export function useProperties() {
     const { data: properties = [], isLoading, error } = useQuery({
@@ -15,13 +13,8 @@ export function useProperties() {
                 .order("created_at", { ascending: false });
 
             if (error) {
-                console.error("Error fetching properties, falling back to static data", error);
-                return staticProperties;
-            }
-
-            // If no data in DB, fallback to static for demo purposes (optional logic)
-            if (!data || data.length === 0) {
-                return staticProperties;
+                console.error("Error fetching properties:", error);
+                throw error;
             }
 
             // Map snake_case DB fields to camelCase TS interface
@@ -38,8 +31,6 @@ export function useProperties() {
                 gallery: item.gallery || []
             })) as Property[];
         },
-        // Initial data from static file to prevent flash of empty content
-        initialData: staticProperties,
     });
 
     const getPropertyById = (id: number) => {

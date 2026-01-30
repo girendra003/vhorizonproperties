@@ -20,7 +20,7 @@ import {
     Star,
     Sparkles
 } from "lucide-react";
-import { properties } from "@/lib/data";
+import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/lib/types";
 
 // Animation variants
@@ -35,6 +35,7 @@ const itemVariants = {
 };
 
 export default function StaysPage() {
+    const { properties } = useProperties();
     const [search, setSearch] = useState("");
     const [priceRange, setPriceRange] = useState([0, 10000]);
     const [perTimeFilter, setPerTimeFilter] = useState<"all" | "night" | "hour">("all");

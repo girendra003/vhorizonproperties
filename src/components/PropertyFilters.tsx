@@ -17,7 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { formatPriceShort } from "@/lib/data";
+import { formatPriceShort } from "@/lib/utils";
 import { FilterState } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -81,7 +81,7 @@ export default function PropertyFilters({
             </button>
           )}
         </div>
-        
+
         {/* Search Suggestions Dropdown */}
         {showSuggestions && searchSuggestions.length > 0 && (
           <div className="absolute z-20 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
@@ -256,8 +256,8 @@ export default function PropertyFilters({
         onClick={applyFilters}
         className={cn(
           "w-full transition-all",
-          hasChanges 
-            ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
+          hasChanges
+            ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
             : "bg-primary/80"
         )}
         disabled={!hasChanges}

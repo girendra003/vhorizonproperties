@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Scale } from "lucide-react";
 import { Property } from "@/lib/types";
-import { formatPriceShort } from "@/lib/data";
+import { formatPriceShort } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useFavorites } from "@/hooks/useFavorites";

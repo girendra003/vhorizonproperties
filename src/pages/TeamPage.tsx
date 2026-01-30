@@ -1,7 +1,8 @@
 import Layout from "@/components/Layout";
 import AgentCard from "@/components/AgentCard";
 import ContactForm from "@/components/ContactForm";
-import { agents, APP_CONFIG } from "@/lib/data";
+import { APP_CONFIG } from "@/lib/config";
+import { useAgents } from "@/hooks/useAgents";
 import { MapPin, Phone, Mail, Award, Users, Home } from "lucide-react";
 
 const stats = [
@@ -11,6 +12,7 @@ const stats = [
 ];
 
 export default function TeamPage() {
+  const { agents } = useAgents();
   return (
     <Layout>
       {/* Hero Section - Meet Our Founders */}
@@ -18,18 +20,18 @@ export default function TeamPage() {
         {/* Premium background with luxury pattern */}
         <div className="absolute inset-0 bg-secondary">
           {/* Subtle geometric pattern overlay */}
-          <div 
-            className="absolute inset-0 opacity-10" 
+          <div
+            className="absolute inset-0 opacity-10"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E86830' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }} 
+            }}
           />
           {/* Gradient overlay for depth */}
           <div className="absolute inset-0 bg-gradient-to-br from-secondary via-secondary/95 to-charcoal-light/80" />
           {/* Subtle glow effect */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/10 rounded-full blur-3xl" />
         </div>
-        
+
         {/* Content */}
         <div className="container px-4 sm:px-6 text-center relative z-10">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
@@ -69,7 +71,7 @@ export default function TeamPage() {
               With combined expertise spanning commercial investments and luxury residentials, our team leads V Horizon Properties with passion and integrity.
             </p>
           </div>
-          
+
           {/* Simple Grid using AgentCard */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
             {agents.map((agent) => (

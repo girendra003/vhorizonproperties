@@ -2,12 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCompareStore } from "@/hooks/useCompareStore";
-import { getPropertyById, formatPriceShort } from "@/lib/data";
+import { useProperties } from "@/hooks/useProperties";
+import { formatPriceShort } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function CompareBar() {
   const navigate = useNavigate();
   const { compareIds, removeFromCompare, clearCompare } = useCompareStore();
+  const { getPropertyById } = useProperties();
 
   if (compareIds.length === 0) return null;
 

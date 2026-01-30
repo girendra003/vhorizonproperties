@@ -51,7 +51,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPriceShort, formatPrice } from "@/lib/data";
+import { formatPriceShort, formatPrice } from "@/lib/utils";
 import { Property } from "@/lib/types";
 import { toast } from "sonner";
 import PropertyForm from "./PropertyForm";

@@ -3,11 +3,13 @@ import { X, Check, Minus, ArrowLeft } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useCompareStore } from "@/hooks/useCompareStore";
-import { getPropertyById, formatPrice, formatPriceShort } from "@/lib/data";
+import { useProperties } from "@/hooks/useProperties";
+import { formatPriceShort } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function ComparePage() {
   const { compareIds, removeFromCompare, clearCompare } = useCompareStore();
+  const { getPropertyById } = useProperties();
   const properties = compareIds.map((id) => getPropertyById(id)).filter(Boolean);
 
   // Collect all unique amenities

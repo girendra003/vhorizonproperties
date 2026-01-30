@@ -10,13 +10,15 @@ import ShareButtons from "@/components/ShareButtons";
 import VirtualTour from "@/components/VirtualTour";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getAgentById, formatPrice } from "@/lib/data";
+import { formatPrice } from "@/lib/utils";
 import { useRecentlyViewedStore } from "@/hooks/useRecentlyViewed";
 import { useProperties } from "@/hooks/useProperties";
+import { useAgents } from "@/hooks/useAgents";
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const { properties, getPropertyById } = useProperties();
+  const { getAgentById } = useAgents();
   const property = getPropertyById(Number(id));
   const { addToRecent } = useRecentlyViewedStore();
 

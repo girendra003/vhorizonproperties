@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
-import { properties, formatPriceShort } from "@/lib/data";
+import { useProperties } from "@/hooks/useProperties";
+import { formatPriceShort } from "@/lib/utils";
 import { X } from "lucide-react";
 
 interface FavoritesDrawerProps {
@@ -12,6 +13,7 @@ interface FavoritesDrawerProps {
 
 export default function FavoritesDrawer({ open, onOpenChange }: FavoritesDrawerProps) {
   const { favorites, toggleFavorite } = useFavorites();
+  const { properties } = useProperties();
   const favoriteProperties = properties.filter((p) => favorites.includes(p.id));
 
   return (
