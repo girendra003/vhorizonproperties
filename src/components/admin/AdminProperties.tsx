@@ -146,6 +146,7 @@ export default function AdminProperties() {
                             <SelectItem value="sale">For Sale</SelectItem>
                             <SelectItem value="rent">For Rent</SelectItem>
                             <SelectItem value="lease">For Lease</SelectItem>
+                            <SelectItem value="stay">Stays</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

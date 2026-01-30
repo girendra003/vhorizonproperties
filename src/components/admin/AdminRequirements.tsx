@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Table,
     TableBody,
@@ -26,11 +26,22 @@ import {
     Loader2,
     Calendar,
     Mail,
-    Phone
+    Phone,
+    Check,
+    AlertCircle,
+    Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 export default function AdminRequirements() {
     // Fetch Requirements
@@ -51,6 +62,36 @@ export default function AdminRequirements() {
             return data || [];
         },
     });
+
+    const queryClient = useQueryClient();
+
+    const updateRequirementMutation = useMutation({
+        mutationFn: async ({ id, status }: { id: string; status: string }) => {
+            const { error } = await supabase
+                .from("property_requirements" as any)
+                .update({ status })
+                .eq("id", id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["admin_requirements"] });
+            toast.success("Requirement status updated");
+        },
+        onError: () => {
+            toast.error("Failed to update status");
+        }
+    });
+
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case "contacted":
+                return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" /> Contacted</Badge>;
+            case "resolved":
+                return <Badge variant="default" className="bg-green-600 hover:bg-green-700"><Check className="h-3 w-3 mr-1" /> Resolved</Badge>;
+            default:
+                return <Badge variant="outline"><AlertCircle className="h-3 w-3 mr-1" /> New</Badge>;
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -83,7 +124,24 @@ export default function AdminRequirements() {
                                         </CardDescription>
                                     </div>
                                     <div className="text-right">
-                                        <Badge>{req.status}</Badge>
+                                        <div className="flex items-center gap-2">
+                                            {getStatusBadge(req.status)}
+                                            <Select
+                                                value={req.status || "new"}
+                                                onValueChange={(value) =>
+                                                    updateRequirementMutation.mutate({ id: req.id, status: value })
+                                                }
+                                            >
+                                                <SelectTrigger className="w-[120px] h-8">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="new">New</SelectItem>
+                                                    <SelectItem value="contacted">Contacted</SelectItem>
+                                                    <SelectItem value="resolved">Resolved</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
                                 </div>
                             </CardHeader>
