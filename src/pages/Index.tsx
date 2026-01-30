@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { ArrowRight, Check } from "lucide-react";
 import Layout from "@/components/Layout";
 import PropertyCard from "@/components/PropertyCard";
@@ -14,12 +15,19 @@ const features = [
   "Property Management",
 ];
 
+// ... imports
+
 export default function Index() {
   const { properties } = useProperties();
   const featuredProperties = properties.slice(0, 3);
 
   return (
     <Layout>
+      <Helmet>
+        <title>V Horizon Properties | Luxury Real Estate & Commercial Spaces Delhi NCR</title>
+        <meta name="description" content="India's premier real estate curators. Find exclusive residential and commercial properties in Delhi, Ghaziabad, Noida, and Gurugram. Expert advisory for high-net-worth individuals." />
+        <link rel="canonical" href="https://vhorizonproperties.in/" />
+      </Helmet>
       {/* Hero Section with Carousel */}
       <HeroCarousel>
         <div className="container text-center text-white px-4 sm:px-6">

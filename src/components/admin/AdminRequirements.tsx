@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { PropertyRequirement } from "@/lib/types";
 import {
     Select,
     SelectContent,
@@ -49,6 +50,7 @@ export default function AdminRequirements() {
         queryKey: ["admin_requirements"],
         queryFn: async () => {
             const { data, error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("property_requirements" as any)
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -59,7 +61,7 @@ export default function AdminRequirements() {
                 return [];
             }
             console.log("Requirements data:", data); // Debug log
-            return data || [];
+            return (data || []) as unknown as PropertyRequirement[];
         },
     });
 
@@ -68,6 +70,7 @@ export default function AdminRequirements() {
     const updateRequirementMutation = useMutation({
         mutationFn: async ({ id, status }: { id: string; status: string }) => {
             const { error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("property_requirements" as any)
                 .update({ status })
                 .eq("id", id);
@@ -110,7 +113,7 @@ export default function AdminRequirements() {
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {requirements.map((req: any) => (
+                    {requirements.map((req: PropertyRequirement) => (
                         <Card key={req.id}>
                             <CardHeader className="pb-2">
                                 <div className="flex justify-between items-start">

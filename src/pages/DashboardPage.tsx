@@ -58,6 +58,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import PropertyCard from "@/components/PropertyCard";
 import { useProperties } from "@/hooks/useProperties";
+import { PropertyRequirement } from "@/lib/types";
 
 // Schema for property requirements
 const requirementSchema = z.object({
@@ -374,7 +375,7 @@ export default function DashboardPage() {
                                     </Card>
                                 ) : (
                                     <div className="space-y-4">
-                                        {requirements.map((req: any) => (
+                                        {requirements.map((req: PropertyRequirement) => (
                                             <Card key={req.id}>
                                                 <CardHeader className="pb-3">
                                                     <div className="flex justify-between items-start">

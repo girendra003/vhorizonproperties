@@ -34,6 +34,8 @@ const itemVariants = {
     visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
 };
 
+import { Helmet } from "react-helmet-async";
+
 export default function StaysPage() {
     const { properties } = useProperties();
     const [search, setSearch] = useState("");
@@ -43,7 +45,7 @@ export default function StaysPage() {
     // Filter properties for "Stays"
     const staysProperties = useMemo(() => {
         return properties.filter(p => p.status === "stay");
-    }, []);
+    }, [properties]); // Added dependency
 
     const filteredStays = useMemo(() => {
         return staysProperties.filter(p => {
@@ -59,6 +61,11 @@ export default function StaysPage() {
 
     return (
         <Layout>
+            <Helmet>
+                <title>Luxury Stays & Short Term Rentals in Delhi NCR | V Horizon Stays</title>
+                <meta name="description" content="Experience premium short-term rentals and luxury stays in Delhi NCR. Book by the hour or night. Hotel comfort with home privacy for business and leisure." />
+                <link rel="canonical" href="https://vhorizonproperties.in/stays" />
+            </Helmet>
             <div className="min-h-screen bg-background">
                 {/* Hero Section */}
                 <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">

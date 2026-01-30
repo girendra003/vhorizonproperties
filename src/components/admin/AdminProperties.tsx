@@ -70,6 +70,7 @@ export default function AdminProperties() {
         queryKey: ["admin_properties"],
         queryFn: async () => {
             const { data, error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("properties" as any)
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -82,6 +83,7 @@ export default function AdminProperties() {
     // Delete Mutation
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { error } = await supabase.from("properties" as any).delete().eq("id", id);
             if (error) throw error;
         },

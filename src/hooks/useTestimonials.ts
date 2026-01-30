@@ -7,6 +7,7 @@ export function useTestimonials() {
         queryKey: ["testimonials"],
         queryFn: async () => {
             const { data, error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("testimonials" as any)
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -16,7 +17,8 @@ export function useTestimonials() {
                 throw error;
             }
 
-            return data.map((item: any) => ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return (data || []).map((item: any) => ({
                 id: item.id,
                 name: item.name,
                 role: item.role,

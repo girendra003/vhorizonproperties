@@ -105,7 +105,7 @@ export function usePropertyFilters(defaultStatus: "sale" | "rent" = "sale") {
     });
 
     return result;
-  }, [filters, sortBy]);
+  }, [filters, sortBy, properties]);
 
   // Update pending filters (not applied yet)
   const updateFilter = useCallback(
@@ -166,7 +166,7 @@ export function usePropertyFilters(defaultStatus: "sale" | "rent" = "sale") {
     });
 
     return suggestions.slice(0, 5);
-  }, [pendingFilters.search, allLocations]);
+  }, [pendingFilters.search, allLocations, properties]);
 
   // Check if pending differs from applied (to show "Apply" button)
   const hasChanges = useMemo(() => {

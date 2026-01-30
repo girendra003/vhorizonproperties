@@ -51,8 +51,9 @@ export default function LoginPage() {
           navigate("/dashboard");
         }
       }
-    } catch (err: any) {
-      toast.error(err.message || "Authentication failed");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Authentication failed";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -174,8 +175,9 @@ export default function LoginPage() {
                         },
                       });
                       if (error) throw error;
-                    } catch (err: any) {
-                      toast.error(err.message || "Failed to sign in with Google");
+                    } catch (err: unknown) {
+                      const errorMessage = err instanceof Error ? err.message : "Failed to sign in with Google";
+                      toast.error(errorMessage);
                     }
                   }}
                 >

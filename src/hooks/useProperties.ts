@@ -8,6 +8,7 @@ export function useProperties() {
         queryFn: async () => {
             // Fetch from Supabase
             const { data, error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("properties" as any)
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -18,6 +19,7 @@ export function useProperties() {
             }
 
             // Map snake_case DB fields to camelCase TS interface
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return data.map((item: any) => ({
                 ...item,
                 heroImage: item.hero_image,

@@ -7,6 +7,7 @@ export function useAgents() {
         queryKey: ["agents"],
         queryFn: async () => {
             const { data, error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("agents" as any)
                 .select("*")
                 .order("created_at", { ascending: true });
@@ -16,7 +17,8 @@ export function useAgents() {
                 throw error;
             }
 
-            return data.map((item: any) => ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return (data || []).map((item: any) => ({
                 ...item,
             })) as Agent[];
         },

@@ -87,6 +87,7 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
                 location: property.location,
                 area: property.area,
                 price: property.price,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 type: property.type as any,
                 status: property.status,
                 beds: property.beds,
@@ -144,7 +145,7 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
         const sanitizedTitle = propertyTitle.toLowerCase().replace(/[^a-z0-9]/g, "-");
 
         // Start count from existing urls length + 1
-        let startCount = uploadedUrls.length + 1;
+        const startCount = uploadedUrls.length + 1;
 
         for (let i = 0; i < imageFiles.length; i++) {
             const file = imageFiles[i];
@@ -218,12 +219,14 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
             if (property) {
                 // Update
                 const { error } = await supabase
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     .from("properties" as any)
                     .update(dbValues)
                     .eq("id", property.id);
                 if (error) throw error;
             } else {
                 // Insert
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { error } = await supabase.from("properties" as any).insert(dbValues);
                 if (error) throw error;
             }

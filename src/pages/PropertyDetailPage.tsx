@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft, MapPin, Bed, Bath, Maximize, Phone, Mail } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import Layout from "@/components/Layout";
 import ImageGallery from "@/components/ImageGallery";
 import ContactForm from "@/components/ContactForm";
@@ -54,6 +55,15 @@ export default function PropertyDetailPage() {
 
   return (
     <Layout>
+      {property && (
+        <Helmet>
+          <title>{`${property.title} | ${property.type === "rent" ? "Rent" : "Buy"} in ${property.location} | V Horizon`}</title>
+          <meta name="description" content={`Check out ${property.title} in ${property.location}. ${property.beds ? `${property.beds} Beds, ` : ""}${property.sqft} SqFt. Price: ${formatPrice(property.price)}.`} />
+          <meta property="og:title" content={`${property.title} - ${property.location}`} />
+          <meta property="og:description" content={`Explore this ${property.type} property in ${property.location}. ${property.description.substring(0, 100)}...`} />
+          <meta property="og:image" content={property.heroImage} />
+        </Helmet>
+      )}
       {/* Breadcrumb */}
       <div className="container py-4">
         <Link

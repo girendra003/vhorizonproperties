@@ -90,3 +90,17 @@ export interface NewsletterSubscriber {
   created_at?: string;
   status?: "active" | "unsubscribed";
 }
+
+export interface PropertyRequirement {
+  id: string;
+  location: string;
+  created_at: string;
+  status: string;
+  property_type?: string;
+  min_budget?: number;
+  max_budget?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  notes?: string;
+  user_id?: string;
+}
