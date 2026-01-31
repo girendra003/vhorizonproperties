@@ -24,22 +24,22 @@ export default function Index() {
   return (
     <Layout>
       <Helmet>
-        <title>V Horizon Properties | Luxury Real Estate & Commercial Spaces Delhi NCR</title>
-        <meta name="description" content="India's premier real estate curators. Find exclusive residential and commercial properties in Delhi, Ghaziabad, Noida, and Gurugram. Expert advisory for high-net-worth individuals." />
+        <title>V Horizon Properties | Buy Studio Apartments & Luxury Stays</title>
+        <meta name="description" content="Find your dream property with V Horizon Properties. We specialize in luxury stays, studio apartments, and premium real estate in Delhi, Ghaziabad, Noida, and Gurugram." />
         <link rel="canonical" href="https://vhorizonproperties.in/" />
       </Helmet>
       {/* Hero Section with Carousel */}
       <HeroCarousel>
         <div className="container text-center text-white px-4 sm:px-6">
           <p className="text-xs sm:text-sm lg:text-base uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary mb-3 sm:mb-4 animate-fade-in">
-            Premium Real Estate
+            Premium Real Estate & Stays
           </p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in" style={{ animationDelay: "100ms" }}>
             Architecture as{" "}
             <span className="font-serif italic text-primary">Art.</span>
           </h1>
           <p className="text-sm sm:text-lg lg:text-xl text-white/80 mb-6 sm:mb-10 max-w-2xl mx-auto animate-fade-in px-2" style={{ animationDelay: "200ms" }}>
-            Curating exceptional properties in Delhi,NCR for India's most discerning clients.
+            Curating exceptional properties, including luxury studio apartments and stays, in Delhi NCR.
           </p>
 
           <div className="inline-flex flex-col sm:flex-row gap-2 sm:gap-3 p-2 sm:p-3 rounded-2xl sm:rounded-full bg-white/10 backdrop-blur-md border border-white/20 animate-fade-in" style={{ animationDelay: "300ms" }}>
