@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { QueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
     user: User | null;
@@ -18,7 +19,12 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+    children: React.ReactNode;
+    queryClient: QueryClient;
+}
+
+export function AuthProvider({ children, queryClient }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -102,6 +108,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signOut();
         setUser(null);
         setIsAdmin(false);
+        // Clear all React Query cache to prevent stale data from persisting
+        queryClient.clear();
     };
 
     return (

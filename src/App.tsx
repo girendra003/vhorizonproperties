@@ -35,7 +35,7 @@ function PageLoader() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
+      <AuthProvider queryClient={queryClient}>
         <Toaster />
         <Sonner />
         <BrowserRouter>
