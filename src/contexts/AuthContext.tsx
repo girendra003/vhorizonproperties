@@ -56,19 +56,27 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
             }
         };
 
+
         const initSession = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) throw error;
+                // Use getUser() to verify the session with the server, ensuring validity
+                const { data: { user }, error } = await supabase.auth.getUser();
 
                 if (mounted) {
-                    setUser(session?.user ?? null);
-                    if (session?.user) {
-                        await checkAdminRole(session.user.id);
+                    if (error) {
+                        // If error (invalid token, etc.), assume logged out
+                        console.error("Session verification failed:", error);
+                        setUser(null);
+                    } else {
+                        setUser(user);
+                        if (user) {
+                            await checkAdminRole(user.id);
+                        }
                     }
                 }
             } catch (err) {
                 console.error("Session init error:", err);
+                if (mounted) setUser(null);
             } finally {
                 if (mounted) {
                     setLoading(false);
@@ -82,6 +90,9 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
         const safetyTimeout = setTimeout(() => {
             if (mounted) {
                 console.warn("Auth initialization timeout - forcing loading to false");
+                // SAFETY: If we timed out, assume we are NOT authenticated to prevent showing
+                // "already signed in" state with no data.
+                setUser(null);
                 setLoading(false);
             }
         }, 5000);
