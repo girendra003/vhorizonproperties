@@ -46,7 +46,7 @@ VALUES
   't1',
   'Rajesh Gupta',
   'Tech Entrepreneur',
-  'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400',
+  '/rajesh.jpg',
   'V Horizon Properties made finding our dream home in Noida effortless. Their attention to detail and understanding of our needs was exceptional.',
   5,
   'Villa'
@@ -64,7 +64,7 @@ VALUES
   't3',
   'Vikram Singh',
   'Investment Banker',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400',
+  '/vikram.png',
   'Exceptional service from start to finish. They understood exactly what we were looking for and delivered beyond our expectations.',
   5,
   'Estate'
