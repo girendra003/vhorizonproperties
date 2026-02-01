@@ -199,7 +199,8 @@ export default function DashboardPage() {
                     </div>
                     <Button variant="outline" onClick={async () => {
                         await signOut();
-                        navigate("/");
+                        // Use window.location.href for a hard refresh to ensure all state is cleared
+                        window.location.href = "/";
                     }}>
                         <LogOut className="h-4 w-4 mr-2" />
                         Sign Out

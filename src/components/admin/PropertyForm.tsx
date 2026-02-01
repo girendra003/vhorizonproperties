@@ -137,12 +137,17 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
         setUploadedUrls((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const uploadImages = async (propertyTitle: string) => {
+    const uploadImages = async (propertyTitle: string, propertyStatus: string) => {
         if (imageFiles.length === 0) return [];
 
         setUploading(true);
         const urls: string[] = [];
         const sanitizedTitle = propertyTitle.toLowerCase().replace(/[^a-z0-9]/g, "-");
+
+        // Map status to folder name (sale->buy, stay->Stays, rent/lease->rent)
+        const statusFolder = propertyStatus === 'sale' ? 'buy' :
+            propertyStatus === 'stay' ? 'Stays' :
+                propertyStatus === 'lease' ? 'rent' : propertyStatus;
 
         // Start count from existing urls length + 1
         const startCount = uploadedUrls.length + 1;
@@ -150,7 +155,7 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
         for (let i = 0; i < imageFiles.length; i++) {
             const file = imageFiles[i];
             const fileExt = file.name.split('.').pop();
-            const fileName = `images/${sanitizedTitle}/${startCount + i}.${fileExt}`;
+            const fileName = `images/${statusFolder}/${sanitizedTitle}/${startCount + i}.${fileExt}`;
 
             try {
                 const { error: uploadError } = await supabase.storage
@@ -192,8 +197,8 @@ export default function PropertyForm({ open, onClose, property }: PropertyFormPr
 
     const mutation = useMutation({
         mutationFn: async (values: z.infer<typeof propertySchema>) => {
-            // Upload images first
-            const newImageUrls = await uploadImages(values.title);
+            // Upload images first with status-based folder
+            const newImageUrls = await uploadImages(values.title, values.status);
             const allUrls = [...uploadedUrls, ...newImageUrls];
 
             // Set hero image to first image if available

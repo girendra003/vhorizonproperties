@@ -222,6 +222,7 @@ export default function AdminPage() {
           </div>
           <Button variant="outline" onClick={async () => {
             await signOut();
+            // Hard refresh to ensure all state is cleared
             window.location.href = "/";
           }}>
             <LogOut className="h-4 w-4 mr-2" />

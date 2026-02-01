@@ -33,7 +33,8 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    // Use window.location.href for a hard refresh to ensure all state is cleared
+    window.location.href = "/";
   };
 
   return (
