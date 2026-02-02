@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
     user: User | null;
+    session: Session | null;
     loading: boolean;
     isAdmin: boolean;
     signOut: () => Promise<void>;
@@ -12,6 +13,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    session: null,
     loading: true,
     isAdmin: false,
     signOut: async () => { },
@@ -26,6 +28,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children, queryClient }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
+    const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -59,24 +62,29 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
 
         const initSession = async () => {
             try {
-                // Use getUser() to verify the session with the server, ensuring validity
-                const { data: { user }, error } = await supabase.auth.getUser();
+                // Get the session from Supabase
+                const { data: { session: currentSession }, error } = await supabase.auth.getSession();
 
                 if (mounted) {
                     if (error) {
                         // If error (invalid token, etc.), assume logged out
                         console.error("Session verification failed:", error);
+                        setSession(null);
                         setUser(null);
                     } else {
-                        setUser(user);
-                        if (user) {
-                            await checkAdminRole(user.id);
+                        setSession(currentSession);
+                        setUser(currentSession?.user ?? null);
+                        if (currentSession?.user) {
+                            await checkAdminRole(currentSession.user.id);
                         }
                     }
                 }
             } catch (err) {
                 console.error("Session init error:", err);
-                if (mounted) setUser(null);
+                if (mounted) {
+                    setSession(null);
+                    setUser(null);
+                }
             } finally {
                 if (mounted) {
                     setLoading(false);
@@ -98,17 +106,29 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
         }, 5000);
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
+            async (event, currentSession) => {
                 if (!mounted) return;
 
-                setUser(session?.user ?? null);
-                if (session?.user) {
+                setSession(currentSession);
+                setUser(currentSession?.user ?? null);
+
+                if (currentSession?.user) {
                     // Check admin role again on auth state change (like sign in)
-                    await checkAdminRole(session.user.id);
+                    await checkAdminRole(currentSession.user.id);
                 } else {
                     setIsAdmin(false);
                 }
                 setLoading(false);
+
+                // Refetch all queries when user signs in
+                if (event === "SIGNED_IN") {
+                    queryClient.invalidateQueries();
+                }
+
+                // Clear all cached data when user signs out
+                if (event === "SIGNED_OUT") {
+                    queryClient.clear();
+                }
             }
         );
 
@@ -133,7 +153,7 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, isAdmin, signOut }}>
+        <AuthContext.Provider value={{ user, session, loading, isAdmin, signOut }}>
             {children}
         </AuthContext.Provider>
     );

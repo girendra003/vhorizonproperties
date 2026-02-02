@@ -23,6 +23,7 @@ const AdminPage = lazy(() => import("./pages/AdminPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const StaysPage = lazy(() => import("./pages/StaysPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,28 +52,31 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider queryClient={queryClient}>
         <GlobalErrorBoundary>
-          <AuthGate>
+          <GlobalErrorBoundary>
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <ScrollToTop />
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/buy" element={<ListingsPage key="buy" defaultStatus="sale" />} />
-                  <Route path="/rent" element={<ListingsPage key="rent" defaultStatus="rent" />} />
-                  <Route path="/stays" element={<StaysPage />} />
-                  <Route path="/property/:id" element={<PropertyDetailPage />} />
-                  <Route path="/team" element={<TeamPage />} />
-                  <Route path="/compare" element={<ComparePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/admin" element={<AdminPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
+              <AuthGate>
+                <ScrollToTop />
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/buy" element={<ListingsPage key="buy" defaultStatus="sale" />} />
+                    <Route path="/rent" element={<ListingsPage key="rent" defaultStatus="rent" />} />
+                    <Route path="/stays" element={<StaysPage />} />
+                    <Route path="/property/:id" element={<PropertyDetailPage />} />
+                    <Route path="/team" element={<TeamPage />} />
+                    <Route path="/compare" element={<ComparePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </AuthGate>
             </BrowserRouter>
-          </AuthGate>
+          </GlobalErrorBoundary>
         </GlobalErrorBoundary>
       </AuthProvider>
     </TooltipProvider>

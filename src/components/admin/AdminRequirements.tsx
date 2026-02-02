@@ -43,8 +43,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminRequirements() {
+    const { user, loading: authLoading, isAdmin } = useAuth();
+
     // Fetch Requirements
     const { data: requirements = [], isLoading } = useQuery({
         queryKey: ["admin_requirements"],
@@ -60,9 +63,10 @@ export default function AdminRequirements() {
                 // Return empty array instead of throwing to prevent crash
                 return [];
             }
-            console.log("Requirements data:", data); // Debug log
+
             return (data || []) as unknown as PropertyRequirement[];
         },
+        enabled: !!user && isAdmin && !authLoading,
     });
 
     const queryClient = useQueryClient();

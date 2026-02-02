@@ -55,9 +55,11 @@ import { formatPriceShort, formatPrice } from "@/lib/utils";
 import { Property } from "@/lib/types";
 import { toast } from "sonner";
 import PropertyForm from "./PropertyForm";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminProperties() {
     const queryClient = useQueryClient();
+    const { user, loading: authLoading, isAdmin } = useAuth();
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -78,6 +80,7 @@ export default function AdminProperties() {
             if (error) throw error;
             return data as unknown as Property[];
         },
+        enabled: !!user && isAdmin && !authLoading,
     });
 
     // Delete Mutation

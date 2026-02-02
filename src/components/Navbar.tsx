@@ -24,6 +24,9 @@ export default function Navbar() {
   const { favorites } = useFavorites();
   const { user, signOut, isAdmin, loading } = useAuth();
 
+  // Get user display name
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "Profile";
+
   const handleLogoClick = (e: React.MouseEvent) => {
     if (location.pathname === "/") {
       e.preventDefault();
@@ -89,7 +92,9 @@ export default function Navbar() {
                     onClick={() => navigate(isAdmin ? "/admin" : "/dashboard")}
                   >
                     <User className="h-4 w-4" />
-                    <span className="sr-only lg:not-sr-only lg:inline-block">Profile</span>
+                    <span className="sr-only lg:not-sr-only lg:inline-block max-w-[150px] truncate">
+                      {displayName}
+                    </span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -163,7 +168,7 @@ export default function Navbar() {
                         className="flex items-center gap-2 text-lg font-medium"
                       >
                         <User className="h-5 w-5" />
-                        Profile
+                        <span className="truncate max-w-[200px]">{displayName}</span>
                       </Link>
                       <button
                         onClick={() => {
