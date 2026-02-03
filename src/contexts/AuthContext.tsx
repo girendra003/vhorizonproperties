@@ -63,49 +63,65 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
 
         const initSession = async () => {
             debugLog.auth("initSession started");
-            debugLog.auth("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
-            debugLog.auth("Supabase Key present:", !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
-            try {    // Add timeout to prevent infinite loading if Supabase hangs
-                // Increased to 10 seconds to account for slow connections
+            // Skip initial session check if we're on the auth callback path
+            if (window.location.pathname.includes("/auth/callback")) {
+                debugLog.auth("Skipping initSession on auth callback route");
+                if (mounted) setLoading(false);
+                return;
+            }
+
+            try {
+                // FAST PATH: Try to get session with a short timeout (2s)
                 const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Supabase getSession timeout after 10s')), 10000)
+                    setTimeout(() => reject(new Error('Supabase getSession timeout')), 2000)
                 );
 
                 const sessionPromise = supabase.auth.getSession();
 
-                // Race between the actual call and timeout
-                const { data: { session: currentSession }, error } = await Promise.race([
-                    sessionPromise,
-                    timeoutPromise
-                ]) as Awaited<ReturnType<typeof supabase.auth.getSession>>;
-
-                debugLog.auth("getSession result", { currentSession, error });
+                // Race!
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
 
                 if (mounted) {
-                    if (error) {
-                        // If error (invalid token, etc.), assume logged out
-                        debugLog.authError("Session verification failed", error);
+                    const session = result.data?.session;
+                    if (session) {
+                        debugLog.auth("Got session via global client");
+                        setSession(session);
+                        setUser(session.user);
+                        checkAdminRole(session.user.id);
+                    } else {
+                        // Explicitly no session
                         setSession(null);
                         setUser(null);
-                    } else {
-                        setSession(currentSession);
-                        setUser(currentSession?.user ?? null);
-                        if (currentSession?.user) {
-                            debugLog.auth("Checking admin role");
-                            await checkAdminRole(currentSession.user.id);
-                        }
                     }
                 }
             } catch (err) {
-                debugLog.authError("Session init error", err);
-                if (mounted) {
-                    setSession(null);
-                    setUser(null);
+                // SLOW PATH / FALLBACK
+                // If global client hangs/fails, try reading from LocalStorage
+                console.warn("Global auth init timed out, checking LocalStorage fallback...");
+
+                try {
+                    const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0];
+                    if (projectRef) {
+                        const storageKey = `sb-${projectRef}-auth-token`;
+                        const storedSession = localStorage.getItem(storageKey);
+                        if (storedSession && mounted) {
+                            const parsed = JSON.parse(storedSession);
+                            // Verify it looks like a session
+                            if (parsed.access_token && parsed.user) {
+                                debugLog.auth("Recovered session from LocalStorage");
+                                setSession(parsed); // It matches the shape enough
+                                setUser(parsed.user);
+                                // Don't check admin role here to avoid another hang, do it lazily or assume false
+                            }
+                        }
+                    }
+                } catch (stErr) {
+                    console.error("Failed to parse local session", stErr);
                 }
             } finally {
                 if (mounted) {
-                    debugLog.auth("Setting loading to false");
                     setLoading(false);
                 }
             }
@@ -149,14 +165,39 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
 
     const signOut = async () => {
         try {
-            await supabase.auth.signOut();
+            debugLog.auth("Sign Out requested");
+
+            // 1. Try to sign out from server with a short timeout
+            // If the global client is hung, this would otherwise block forever
+            const signOutPromise = supabase.auth.signOut();
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Sign out timed out")), 2000)
+            );
+
+            await Promise.race([signOutPromise, timeoutPromise]);
+            debugLog.auth("Sign Out successful on server");
         } catch (error) {
-            debugLog.authError("Error signing out", error);
+            debugLog.authError("Error signing out (or timed out), forcing local cleanup", error);
+
+            // 2. Force clear local storage if server signout failed/timed out
+            // This ensures the user is effectively logged out locally
+            try {
+                const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0];
+                if (projectRef) {
+                    const storageKey = `sb-${projectRef}-auth-token`;
+                    localStorage.removeItem(storageKey);
+                    debugLog.auth("Forced removal of local session token");
+                }
+            } catch (cleanupError) {
+                console.error("Failed to force clean local storage", cleanupError);
+            }
         } finally {
+            // 3. Always clear React state and Query cache
             setUser(null);
+            setSession(null);
             setIsAdmin(false);
-            // Clear all React Query cache to prevent stale data from persisting
             queryClient.clear();
+            debugLog.auth("Local state cleared");
         }
     };
 

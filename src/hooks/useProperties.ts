@@ -1,5 +1,6 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as globalSupabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
 import { Property } from "@/lib/types";
 import { debugLog } from "@/lib/debug";
 
@@ -11,16 +12,85 @@ export function useProperties() {
     const { data: properties = [], isLoading, error } = useQuery({
         queryKey: ["properties"],
         queryFn: async () => {
-            const { data, error } = await supabase
+            debugLog.info("Fetching properties started...");
+
+            // WORKAROUND: Global supabase client hangs when authenticated.
+            // We create a fresh client and manually apply the session.
+
+            let token: string | undefined;
+
+            try {
+                // 1. Try to get session from global client with a short timeout (2s)
+                // This prevents the whole app from hanging if the global client is deadlocked
+                const getSessionPromise = globalSupabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Global client session retrieval timed out")), 2000)
+                );
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const result = await Promise.race([getSessionPromise, timeoutPromise]) as any;
+                token = result.data?.session?.access_token;
+                debugLog.info("Got session via global client");
+            } catch (err) {
+                // 2. Fallback: Try reading from LocalStorage directly
+                console.warn("Global client hung/failed, trying Access Token from LocalStorage...", err);
+
+                // Supabase uses a specific key format: sb-<project-ref>-auth-token
+                // Project Ref is the subpoena in the URL: https://<ref>.supabase.co
+                const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0];
+                if (projectRef) {
+                    const storageKey = `sb-${projectRef}-auth-token`;
+                    const storedSession = localStorage.getItem(storageKey);
+                    if (storedSession) {
+                        try {
+                            const parsed = JSON.parse(storedSession);
+                            token = parsed.access_token;
+                            debugLog.info("Got session via LocalStorage fallback");
+                        } catch (e) {
+                            console.error("Failed to parse stored session", e);
+                        }
+                    }
+                }
+            }
+
+            const client = createClient(
+                import.meta.env.VITE_SUPABASE_URL,
+                import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: {
+                        persistSession: false,
+                        autoRefreshToken: false,
+                        detectSessionInUrl: false
+                    },
+                    global: {
+                        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+                    }
+                }
+            );
+
+            // Create a timeout promise (15s)
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Request timed out fetching properties")), 15000)
+            );
+
+            // Fetch using the fresh client
+            const fetchPromise = client
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .from("properties" as any)
                 .select("*")
                 .order("created_at", { ascending: false });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const result = await Promise.race([fetchPromise, timeoutPromise]) as any;
+
+            const { data, error } = result;
+
             if (error) {
                 debugLog.authError("Error fetching properties:", error);
                 throw error;
             }
+
+            debugLog.info(`Fetched ${data?.length || 0} properties successfully`);
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return data.map((item: any) => ({
@@ -36,6 +106,7 @@ export function useProperties() {
             })) as Property[];
         },
         staleTime: 5 * 60 * 1000,
+        retry: 1, // Minimize retries to avoid long waits
     });
 
     const getPropertyById = (id: number) => {

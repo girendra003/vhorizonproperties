@@ -24,7 +24,7 @@ export const supabase = createClient<Database>(
       storage: localStorage,
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: false, // DISABLED to prevent race condition with manual AuthCallback exchange
       flowType: "pkce",
     }
   }

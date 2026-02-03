@@ -82,6 +82,7 @@ export default function UserLoginPage() {
                     redirectTo: `${window.location.origin}/auth/callback`,
                 },
             });
+            console.log("[GoogleLogin] Redirecting to:", `${window.location.origin}/auth/callback`);
             if (error) throw error;
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Failed to sign in with Google";

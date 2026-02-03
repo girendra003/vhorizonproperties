@@ -14,7 +14,7 @@ const sortOptions: SortOption[] = [
 ];
 
 export function usePropertyFilters(defaultStatus: "sale" | "rent" = "sale") {
-  const { properties } = useProperties(); // Use the hook here
+  const { properties, isLoading, error } = useProperties(); // Destructure all needed values
 
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -203,5 +203,7 @@ export function usePropertyFilters(defaultStatus: "sale" | "rent" = "sale") {
     applyFilters,
     resetFilters,
     setSortBy,
+    isLoading,
+    error,
   };
 }

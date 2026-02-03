@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePropertyFilters } from "@/hooks/usePropertyFilters";
 import { useCompareStore } from "@/hooks/useCompareStore";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Loader2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -39,6 +39,8 @@ export default function ListingsPage({ defaultStatus = "sale" }: ListingsPagePro
     applyFilters,
     resetFilters,
     setSortBy,
+    isLoading,
+    error,
   } = usePropertyFilters(defaultStatus);
 
   const { compareIds } = useCompareStore();
@@ -126,7 +128,19 @@ export default function ListingsPage({ defaultStatus = "sale" }: ListingsPagePro
               </div>
             </div>
 
-            {filteredProperties.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : error ? (
+              <div className="text-center py-20 text-red-500">
+                <h3 className="text-xl font-semibold mb-2">Error loading properties</h3>
+                <p>{(error as Error).message}</p>
+                <Button variant="outline" onClick={() => window.location.reload()} className="mt-4">
+                  Retry
+                </Button>
+              </div>
+            ) : filteredProperties.length === 0 ? (
               <div className="text-center py-20">
                 <h3 className="text-xl font-semibold mb-2">No properties found</h3>
                 <p className="text-muted-foreground mb-4">

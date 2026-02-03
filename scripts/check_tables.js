@@ -6,22 +6,26 @@ const key = 'sb_publishable_Y4zvAHYGOMV4RG0KddVRoA_HbK4vTNW';
 const supabase = createClient(url, key);
 
 async function check() {
-    console.log('--- Checking Tables ---');
+    console.log('--- Checking Properties Data (Detailed) ---');
 
-    // Check Properties
-    const { data: pData, error: pError } = await supabase.from('properties').select('id').limit(1);
-    if (pError) console.log(`[PROPERTIES] Error: ${pError.message}`);
-    else console.log(`[PROPERTIES] Exists. Found ${pData.length > 0 ? 'data' : 'no data'}.`);
+    // Fetch properties with all filterable fields
+    const { data, error } = await supabase
+        .from('properties')
+        .select('id, title, status, price, beds, baths, sqft, location');
 
-    // Check Agents
-    const { data: aData, error: aError } = await supabase.from('agents').select('id').limit(1);
-    if (aError) console.log(`[AGENTS] Error: ${aError.message}`);
-    else console.log(`[AGENTS] Exists. Found ${aData.length > 0 ? 'data' : 'no data'}.`);
+    if (error) {
+        console.error(`[ERROR] Failed to fetch properties: ${error.message}`);
+        return;
+    }
 
-    // Check Testimonials
-    const { data: tData, error: tError } = await supabase.from('testimonials').select('id').limit(1);
-    if (tError) console.log(`[TESTIMONIALS] Error: ${tError.message}`);
-    else console.log(`[TESTIMONIALS] Exists. Found ${tData.length > 0 ? 'data' : 'no data'}.`);
+    if (data.length === 0) {
+        console.log('[INFO] No properties found in the database.');
+    } else {
+        console.log(`[INFO] Found ${data.length} properties.`);
+        data.forEach(p => {
+            console.log(`[ID: ${p.id}] Status: ${p.status} | Price: ${p.price} | Beds: ${p.beds} | Baths: ${p.baths} | Sqft: ${p.sqft} | Loc: ${p.location}`);
+        });
+    }
 
     console.log('--- Done ---');
 }

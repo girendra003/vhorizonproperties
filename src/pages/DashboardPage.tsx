@@ -95,7 +95,36 @@ export default function DashboardPage() {
     const { data: requirements = [], isLoading: reqLoading } = useQuery({
         queryKey: ["property_requirements"],
         queryFn: async () => {
-            const { data, error } = await supabase
+            // WORKAROUND: Global client hangs. Use fresh client.
+            let token: string | undefined;
+            try {
+                const globalSessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Session timeout")), 2000)
+                );
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const result = await Promise.race([globalSessionPromise, timeoutPromise]) as any;
+                token = result.data?.session?.access_token;
+            } catch (e) {
+                console.warn("Global session retrieval failed, trying local storage", e);
+                const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0];
+                if (projectRef) {
+                    const stored = localStorage.getItem(`sb-${projectRef}-auth-token`);
+                    if (stored) token = JSON.parse(stored).access_token;
+                }
+            }
+
+            const { createClient } = await import("@supabase/supabase-js");
+            const freshClient = createClient(
+                import.meta.env.VITE_SUPABASE_URL,
+                import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: { persistSession: false, detectSessionInUrl: false },
+                    global: { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                }
+            );
+
+            const { data, error } = await freshClient
                 .from("property_requirements")
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -109,7 +138,36 @@ export default function DashboardPage() {
     const { data: savedProperties = [], isLoading: savedLoading } = useQuery({
         queryKey: ["saved_properties"],
         queryFn: async () => {
-            const { data, error } = await supabase
+            // WORKAROUND: Global client hangs. Use fresh client.
+            let token: string | undefined;
+            try {
+                const globalSessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Session timeout")), 2000)
+                );
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const result = await Promise.race([globalSessionPromise, timeoutPromise]) as any;
+                token = result.data?.session?.access_token;
+            } catch (e) {
+                console.warn("Global session retrieval failed, trying local storage", e);
+                const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0];
+                if (projectRef) {
+                    const stored = localStorage.getItem(`sb-${projectRef}-auth-token`);
+                    if (stored) token = JSON.parse(stored).access_token;
+                }
+            }
+
+            const { createClient } = await import("@supabase/supabase-js");
+            const freshClient = createClient(
+                import.meta.env.VITE_SUPABASE_URL,
+                import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: { persistSession: false, detectSessionInUrl: false },
+                    global: { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
+                }
+            );
+
+            const { data, error } = await freshClient
                 .from("saved_properties")
                 .select("property_id")
                 .order("created_at", { ascending: false });
@@ -117,8 +175,6 @@ export default function DashboardPage() {
             if (error) throw error;
 
             // Map saved IDs to actual property data
-            // In a real app, you'd likely fetch the property details from the DB too.
-            // Here we map back to the static data for display purposes
             const savedIds = data.map(item => item.property_id);
             return properties.filter(p => savedIds.includes(p.id));
         },
